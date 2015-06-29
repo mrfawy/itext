@@ -1,14 +1,17 @@
 package com.nw.itext.main;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,17 +32,20 @@ public class PDFChanger {
 	private int currentPDFPage = 1;
 	private String currentFilePath;
 	private String OUTPUT_PATH;
+	private boolean fileChanged=false;
 
 	private static List<RuleMatcherIF> ruleMatchers;
 
 	public PDFChanger(String filePath) throws IOException, URISyntaxException {
 		this.currentFilePath = filePath;
-		
-		Path p = Paths.get(new URI(filePath));		
+
+		Path p = Paths.get(new URI(filePath));
 		String fileName = p.getFileName().toString();
-		
-		OUTPUT_PATH = "result/" + fileName;
-		//OUTPUT_PATH=OUTPUT_PATH.replaceAll(" ","%20");//fix spaces if found
+
+		OUTPUT_PATH = "output/";
+		new File(OUTPUT_PATH).mkdirs();
+		OUTPUT_PATH += fileName;
+		// OUTPUT_PATH=OUTPUT_PATH.replaceAll(" ","%20");//fix spaces if found
 		this.reader = new PdfReader(filePath);
 		registerRuleMachers();
 
@@ -79,16 +85,18 @@ public class PDFChanger {
 					anotation.put(PdfName.A, action);
 					PdfDictionary ac = anotation.getAsDict(PdfName.A);
 					ac.put(PdfName.URI, new PdfString(newTargetUrl));
-					System.out.println(
-							new LogRecord(currentFilePath, currentPDFPage, "Source: " + oldTarget + "\tTarget: "
-									+ newTargetUrl, "success"));
+					fileChanged=true;
+					System.out.println(new LogRecord(currentFilePath,
+							currentPDFPage, "Source: " + oldTarget
+									+ "\tTarget: " + newTargetUrl, "success"));
 				}
 			}
 			if (!matchedFlag) {
-				System.out.println(
-						new LogRecord(currentFilePath, currentPDFPage, "Unable to match annotation no rule applies : "+oldTarget
-								+ anotation, "Error"));
-				
+				System.out.println(new LogRecord(currentFilePath,
+						currentPDFPage,
+						"Unable to match annotation no rule applies : "
+								+ oldTarget + anotation, "Error"));
+
 			}
 
 		}
@@ -100,12 +108,10 @@ public class PDFChanger {
 		if (subType != null && PdfName.LINK.equals(subType)) {
 			PdfDictionary action = annotation.getAsDict(PdfName.A);
 			if (action != null && action.getAsDict(PdfName.F) != null) {
-				System.out.println(new LogRecord(currentFilePath,
-						currentPDFPage, "annotation found" + annotation, "Info"));
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -137,32 +143,76 @@ public class PDFChanger {
 
 		PdfStamper stamper;
 		try {
-			stamper = new PdfStamper(reader, new FileOutputStream(OUTPUT_PATH));
-			stamper.close();
-		} catch (DocumentException | IOException e) {
+			if(fileChanged){
+				if(backupOldFile(this.currentFilePath)){
+					Path oldFilePath=Paths.get(new URI(this.currentFilePath));
+					Files.deleteIfExists(oldFilePath);
+					OutputStream outputStream = Files.newOutputStream(oldFilePath, StandardOpenOption.CREATE);
+					stamper = new PdfStamper(reader,outputStream);
+					stamper.close();
+				}
+				
+			}
+			
+		} catch (DocumentException | IOException | URISyntaxException e) {
 			e.printStackTrace();
+			System.out.println(new LogRecord(currentFilePath,
+					-1,
+					"Failed to write file", "Error"));
 		}
 
 	}
 
+	private boolean backupOldFile(String filePath) {
+		
+			try {
+				Path  oldFilePath=Paths.get(new URI(filePath));
+				String oldFileParent = filePath.substring(0,filePath.lastIndexOf("/"));
+				String oldFileName=filePath.substring(filePath.lastIndexOf("/"));
+				oldFileName+="_NBPBKP.pdf";
+				Path bkpFilePath = Paths.get(new URI(oldFileParent+oldFileName));
+				Files.copy(oldFilePath,bkpFilePath,StandardCopyOption.REPLACE_EXISTING);
+				return true;
+			} catch (URISyntaxException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.out.println(new LogRecord(currentFilePath,
+						-1,
+						"Failed to backup currentFile ", "Error"));
+				return false;
+				
+			}	
+			
+	}
+	
+
 	public static void main(String[] args) throws IOException {
 
-		for (String filePath : Files.readAllLines(Paths.get("inputFiles.txt"),
+		if (args == null || args.length < 1) {
+			System.err
+					.println("Missing input : file path to input.txt which contains all files to be processed");
+			return;
+		}
+		String inputPath = args[0];
+
+		for (String filePath : Files.readAllLines(Paths.get(inputPath),
 				Charset.defaultCharset())) {
 			if (filePath.isEmpty() || filePath.startsWith("#")) {
 				continue;
 			} else {
-				try{
-					filePath=filePath.replaceAll(" ","%20");//fix spaces if found
+				try {
+					filePath = filePath.replaceAll(" ", "%20");// fix spaces 
+
 					new PDFChanger(filePath).processFile();
-				}catch(Exception ex){
-				ex.printStackTrace();
-				System.out.println("skipping to next file ");
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					System.out.println("skipping to next file ");
 				}
-				
+
 			}
 
 		}
+		System.out.println("Done");
 
 	}
 }

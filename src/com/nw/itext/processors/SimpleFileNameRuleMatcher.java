@@ -17,9 +17,9 @@ public class SimpleFileNameRuleMatcher implements RuleMatcherIF {
 		if (target == null || target.isEmpty()) {
 			return false;
 		}
-		if (target.startsWith("..") || target.startsWith("/")) {
+		/*if (target.startsWith("..") || target.startsWith("/")) {
 			return false;
-		}
+		}*/
 		if (target.toLowerCase().endsWith(".pdf")) {
 			return true;
 		}
