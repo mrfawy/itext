@@ -1,7 +1,5 @@
 package com.nw.itext.main;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -23,29 +21,26 @@ import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfString;
+import com.nw.itext.processors.ParentFolderRuleMatcher;
 import com.nw.itext.processors.RuleMatcherIF;
+import com.nw.itext.processors.ServerRuleMatcher;
 import com.nw.itext.processors.SimpleFileNameRuleMatcher;
 
 public class PDFChanger {
 
+	private String prefix;
 	PdfReader reader;
 	private int currentPDFPage = 1;
 	private String currentFilePath;
-	private String OUTPUT_PATH;
-	private boolean fileChanged=false;
+
+	private boolean fileChanged = false;
 
 	private static List<RuleMatcherIF> ruleMatchers;
 
-	public PDFChanger(String filePath) throws IOException, URISyntaxException {
+	public PDFChanger(String filePath, String prefix) throws IOException,
+			URISyntaxException {
+		this.prefix = prefix;
 		this.currentFilePath = filePath;
-
-		Path p = Paths.get(new URI(filePath));
-		String fileName = p.getFileName().toString();
-
-		OUTPUT_PATH = "output/";
-		new File(OUTPUT_PATH).mkdirs();
-		OUTPUT_PATH += fileName;
-		// OUTPUT_PATH=OUTPUT_PATH.replaceAll(" ","%20");//fix spaces if found
 		this.reader = new PdfReader(filePath);
 		registerRuleMachers();
 
@@ -54,8 +49,10 @@ public class PDFChanger {
 	private void registerRuleMachers() {
 		if (ruleMatchers == null) {
 			ruleMatchers = new ArrayList<RuleMatcherIF>();
-			ruleMatchers.add(new SimpleFileNameRuleMatcher(
-					"../center/NBPFile.cfm?File="));
+			ruleMatchers.add(new SimpleFileNameRuleMatcher(prefix));
+			ruleMatchers.add(new ParentFolderRuleMatcher(prefix,
+					currentFilePath));
+			ruleMatchers.add(new ServerRuleMatcher(prefix));
 		}
 
 	}
@@ -78,17 +75,10 @@ public class PDFChanger {
 			boolean matchedFlag = false;
 			for (RuleMatcherIF ruleMatcher : ruleMatchers) {
 				if (ruleMatcher.isRuleMachingTargetFile(oldTarget)) {
+					
+					UpdateAnnotation(anotation, oldTarget, ruleMatcher);
 					matchedFlag = true;
-					String newTargetUrl = ruleMatcher.createURIStr(oldTarget);
-					newTargetUrl = createNewUrl(oldTarget);
-					PdfAction action = new PdfAction("http://");
-					anotation.put(PdfName.A, action);
-					PdfDictionary ac = anotation.getAsDict(PdfName.A);
-					ac.put(PdfName.URI, new PdfString(newTargetUrl));
-					fileChanged=true;
-					System.out.println(new LogRecord(currentFilePath,
-							currentPDFPage, "Source: " + oldTarget
-									+ "\tTarget: " + newTargetUrl, "success"));
+					break;
 				}
 			}
 			if (!matchedFlag) {
@@ -101,6 +91,19 @@ public class PDFChanger {
 
 		}
 
+	}
+
+	private void UpdateAnnotation(PdfDictionary anotation, String oldTarget,
+			RuleMatcherIF ruleMatcher) {
+		String newTargetUrl = ruleMatcher.createURIStr(oldTarget);		
+		PdfAction action = new PdfAction("http://");
+		anotation.put(PdfName.A, action);
+		PdfDictionary ac = anotation.getAsDict(PdfName.A);
+		ac.put(PdfName.URI, new PdfString(newTargetUrl));
+	//	fileChanged = true;
+		System.out.println(new LogRecord(currentFilePath,
+				currentPDFPage, "Source: " + oldTarget
+						+ "\tTarget: " + newTargetUrl, "success"));
 	}
 
 	private boolean isCandidateAnnotation(PdfDictionary annotation) {
@@ -126,11 +129,7 @@ public class PDFChanger {
 
 	}
 
-	public String createNewUrl(String s) {
-		String result = "../center/NBPFile.cfm?File=" + s;
-		return result;
-
-	}
+	
 
 	public void processFile() {
 
@@ -143,48 +142,48 @@ public class PDFChanger {
 
 		PdfStamper stamper;
 		try {
-			if(fileChanged){
-				if(backupOldFile(this.currentFilePath)){
-					Path oldFilePath=Paths.get(new URI(this.currentFilePath));
+			if (fileChanged) {
+				if (backupOldFile(this.currentFilePath)) {
+					Path oldFilePath = Paths.get(new URI(this.currentFilePath));
 					Files.deleteIfExists(oldFilePath);
-					OutputStream outputStream = Files.newOutputStream(oldFilePath, StandardOpenOption.CREATE);
-					stamper = new PdfStamper(reader,outputStream);
+					OutputStream outputStream = Files.newOutputStream(
+							oldFilePath, StandardOpenOption.CREATE);
+					stamper = new PdfStamper(reader, outputStream);
 					stamper.close();
 				}
-				
+
 			}
-			
+
 		} catch (DocumentException | IOException | URISyntaxException e) {
 			e.printStackTrace();
-			System.out.println(new LogRecord(currentFilePath,
-					-1,
+			System.out.println(new LogRecord(currentFilePath, -1,
 					"Failed to write file", "Error"));
 		}
 
 	}
 
 	private boolean backupOldFile(String filePath) {
-		
-			try {
-				Path  oldFilePath=Paths.get(new URI(filePath));
-				String oldFileParent = filePath.substring(0,filePath.lastIndexOf("/"));
-				String oldFileName=filePath.substring(filePath.lastIndexOf("/"));
-				oldFileName+="_NBPBKP.pdf";
-				Path bkpFilePath = Paths.get(new URI(oldFileParent+oldFileName));
-				Files.copy(oldFilePath,bkpFilePath,StandardCopyOption.REPLACE_EXISTING);
-				return true;
-			} catch (URISyntaxException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				System.out.println(new LogRecord(currentFilePath,
-						-1,
-						"Failed to backup currentFile ", "Error"));
-				return false;
-				
-			}	
-			
+
+		try {
+			Path oldFilePath = Paths.get(new URI(filePath));
+			String oldFileParent = filePath.substring(0,
+					filePath.lastIndexOf("/"));
+			String oldFileName = filePath.substring(filePath.lastIndexOf("/"));
+			oldFileName += "_NBPBKP.pdf";
+			Path bkpFilePath = Paths.get(new URI(oldFileParent + oldFileName));
+			Files.copy(oldFilePath, bkpFilePath,
+					StandardCopyOption.REPLACE_EXISTING);
+			return true;
+		} catch (URISyntaxException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println(new LogRecord(currentFilePath, -1,
+					"Failed to backup currentFile ", "Error"));
+			return false;
+
+		}
+
 	}
-	
 
 	public static void main(String[] args) throws IOException {
 
@@ -193,6 +192,7 @@ public class PDFChanger {
 					.println("Missing input : file path to input.txt which contains all files to be processed");
 			return;
 		}
+		String prefix = "../center/NBPFile.cfm?File=";
 		String inputPath = args[0];
 
 		for (String filePath : Files.readAllLines(Paths.get(inputPath),
@@ -201,9 +201,9 @@ public class PDFChanger {
 				continue;
 			} else {
 				try {
-					filePath = filePath.replaceAll(" ", "%20");// fix spaces 
+					filePath = filePath.replaceAll(" ", "%20");// fix spaces
 
-					new PDFChanger(filePath).processFile();
+					new PDFChanger(filePath, prefix).processFile();
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					System.out.println("skipping to next file ");

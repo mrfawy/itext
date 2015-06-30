@@ -1,6 +1,6 @@
 package com.nw.itext.processors;
 
-public class SimpleFileNameRuleMatcher implements RuleMatcherIF {
+public class SimpleFileNameRuleMatcher extends AbstractRuleMatcher {
 	
 	private String prefix;
 
@@ -20,7 +20,7 @@ public class SimpleFileNameRuleMatcher implements RuleMatcherIF {
 		/*if (target.startsWith("..") || target.startsWith("/")) {
 			return false;
 		}*/
-		if (target.toLowerCase().endsWith(".pdf")) {
+		if (target.toLowerCase().endsWith(".pdf")&&!target.contains("/")) {
 			return true;
 		}
 		return false;
