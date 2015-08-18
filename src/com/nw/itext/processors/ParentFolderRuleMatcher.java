@@ -39,11 +39,12 @@ public class ParentFolderRuleMatcher implements RuleMatcherIF{
 		}while(lastIndex!=-1);
 		return count;
 	}
-	public String popFolders(String path,int count){
+	public String popFolders(String path,int count){		
 		path=path.replace("//", "/");
 		path=path.replace("file:/","file://");
+		path=path.replace("/", "\\");
 		for (int i=0;i<=count;i++){
-			int lastIndex=path.lastIndexOf("/");
+			int lastIndex=path.lastIndexOf("\\");
 			path=path.substring(0,lastIndex);			
 		
 		}

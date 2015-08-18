@@ -1,5 +1,6 @@
 package com.nw.itext.main;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -11,7 +12,12 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfAction;
@@ -75,7 +81,7 @@ public class PDFChanger {
 			boolean matchedFlag = false;
 			for (RuleMatcherIF ruleMatcher : ruleMatchers) {
 				if (ruleMatcher.isRuleMachingTargetFile(oldTarget)) {
-					
+
 					UpdateAnnotation(anotation, oldTarget, ruleMatcher);
 					matchedFlag = true;
 					break;
@@ -95,27 +101,53 @@ public class PDFChanger {
 
 	private void UpdateAnnotation(PdfDictionary anotation, String oldTarget,
 			RuleMatcherIF ruleMatcher) {
-		String newTargetUrl = ruleMatcher.createURIStr(oldTarget);		
-		PdfAction action = new PdfAction("http://");
-		anotation.put(PdfName.A, action);
-		PdfDictionary ac = anotation.getAsDict(PdfName.A);
-		ac.put(PdfName.URI, new PdfString(newTargetUrl));
-	//	fileChanged = true;
-		System.out.println(new LogRecord(currentFilePath,
-				currentPDFPage, "Source: " + oldTarget
-						+ "\tTarget: " + newTargetUrl, "success"));
+		try{
+			String newTargetUrl = ruleMatcher.createURIStr(oldTarget);
+			PdfAction action = new PdfAction("http://");
+			anotation.put(PdfName.A, action);
+			PdfDictionary ac = anotation.getAsDict(PdfName.A);
+			ac.put(PdfName.URI, new PdfString(newTargetUrl));
+			// fileChanged = true;
+			System.out
+					.println(new LogRecord(currentFilePath, currentPDFPage,
+							"Source: " + oldTarget + "\tTarget: " + newTargetUrl,
+							"success"));
+		}catch(Exception e){
+			System.err.println(oldTarget);
+			e.printStackTrace();
+		}
+		
 	}
 
 	private boolean isCandidateAnnotation(PdfDictionary annotation) {
 		PdfName subType = annotation.getAsName(PdfName.SUBTYPE);
 		if (subType != null && PdfName.LINK.equals(subType)) {
 			PdfDictionary action = annotation.getAsDict(PdfName.A);
-			if (action != null && action.getAsDict(PdfName.F) != null) {
+			// skip if already processed before
+			if (action != null && !isProcessedBefore(annotation)) {
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	public boolean isProcessedBefore(PdfDictionary annotation) {
+		if (annotation == null || annotation.getAsDict(PdfName.A) == null) {
+			return false;
+		}
+
+		try {
+			PdfDictionary ac = annotation.getAsDict(PdfName.A);
+			PdfString uri = (PdfString) ac.get(PdfName.URI);
+			if (uri!=null && uri.toString().startsWith(prefix)) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+
 	}
 
 	public String extractTargetFile(PdfDictionary anotation) {
@@ -128,8 +160,6 @@ public class PDFChanger {
 				"Unable to extract old file target from annotation");
 
 	}
-
-	
 
 	public void processFile() {
 
@@ -189,29 +219,26 @@ public class PDFChanger {
 
 		if (args == null || args.length < 1) {
 			System.err
-					.println("Missing input : file path to input.txt which contains all files to be processed");
+					.println("Missing input : file path to input.txt which contains all files to be processed, or a directory to scan for PDFs");
 			return;
 		}
 		String prefix = "../center/NBPFile.cfm?File=";
 		String inputPath = args[0];
-
-		for (String filePath : Files.readAllLines(Paths.get(inputPath),
-				Charset.defaultCharset())) {
-			if (filePath.isEmpty() || filePath.startsWith("#")) {
-				continue;
-			} else {
-				try {
-					filePath = filePath.replaceAll(" ", "%20");// fix spaces
-
-					new PDFChanger(filePath, prefix).processFile();
-				} catch (Exception ex) {
-					ex.printStackTrace();
-					System.out.println("skipping to next file ");
-				}
-
-			}
-
+		
+		// if single file , treat as input file which has list of file paths per line , else scan the directory for PDFS
+		List<String> filePathList=FileLocator.generateFilePathList(inputPath);	
+		if(filePathList==null){
+			System.err.println("Error: No files Found!, please check your input. ");
+			return;
 		}
+		for(String filePath:filePathList){
+			try {
+				new PDFChanger(filePath, prefix).processFile();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				System.out.println("skipping to next file ");
+			}	
+		}		
 		System.out.println("Done");
 
 	}
