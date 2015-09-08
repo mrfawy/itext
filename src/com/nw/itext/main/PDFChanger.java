@@ -39,13 +39,15 @@ public class PDFChanger {
 	private int currentPDFPage = 1;
 	private String currentFilePath;
 
-	private boolean fileChanged = false;
+	private boolean testOnly = false;
+	private boolean fileChanged=false;
 
 	private static List<RuleMatcherIF> ruleMatchers;
 
-	public PDFChanger(String filePath, String prefix) throws IOException,
+	public PDFChanger(String filePath, String prefix, boolean testOnly) throws IOException,
 			URISyntaxException {
 		this.prefix = prefix;
+		this.testOnly=testOnly;
 		this.currentFilePath = filePath;
 		this.reader = new PdfReader(filePath);
 		registerRuleMachers();
@@ -107,7 +109,9 @@ public class PDFChanger {
 			anotation.put(PdfName.A, action);
 			PdfDictionary ac = anotation.getAsDict(PdfName.A);
 			ac.put(PdfName.URI, new PdfString(newTargetUrl));
-			// fileChanged = true;
+			if(!testOnly){
+				fileChanged = true;
+			}			
 			System.out
 					.println(new LogRecord(currentFilePath, currentPDFPage,
 							"Source: " + oldTarget + "\tTarget: " + newTargetUrl,
@@ -174,8 +178,7 @@ public class PDFChanger {
 		try {
 			if (fileChanged) {
 				if (backupOldFile(this.currentFilePath)) {
-					Path oldFilePath = Paths.get(new URI(this.currentFilePath));
-					Files.deleteIfExists(oldFilePath);
+					Path oldFilePath = Paths.get(this.currentFilePath);					
 					OutputStream outputStream = Files.newOutputStream(
 							oldFilePath, StandardOpenOption.CREATE);
 					stamper = new PdfStamper(reader, outputStream);
@@ -184,7 +187,7 @@ public class PDFChanger {
 
 			}
 
-		} catch (DocumentException | IOException | URISyntaxException e) {
+		} catch (DocumentException | IOException  e) {
 			e.printStackTrace();
 			System.out.println(new LogRecord(currentFilePath, -1,
 					"Failed to write file", "Error"));
@@ -195,16 +198,17 @@ public class PDFChanger {
 	private boolean backupOldFile(String filePath) {
 
 		try {
-			Path oldFilePath = Paths.get(new URI(filePath));
+						
+			Path oldFilePath = Paths.get(filePath);
 			String oldFileParent = filePath.substring(0,
-					filePath.lastIndexOf("/"));
-			String oldFileName = filePath.substring(filePath.lastIndexOf("/"));
+					filePath.lastIndexOf("\\"));
+			String oldFileName = filePath.substring(filePath.lastIndexOf("\\"));
 			oldFileName += "_NBPBKP.pdf";
-			Path bkpFilePath = Paths.get(new URI(oldFileParent + oldFileName));
+			Path bkpFilePath = Paths.get(oldFileParent + oldFileName);
 			Files.copy(oldFilePath, bkpFilePath,
 					StandardCopyOption.REPLACE_EXISTING);
 			return true;
-		} catch (URISyntaxException | IOException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.out.println(new LogRecord(currentFilePath, -1,
@@ -222,7 +226,15 @@ public class PDFChanger {
 					.println("Missing input : file path to input.txt which contains all files to be processed, or a directory to scan for PDFs");
 			return;
 		}
-		String prefix = "../center/NBPFile.cfm?File=";
+		//default prefix
+		String prefix = "../center/NBPElibContentLoad.cfm?FilePath=";
+		if(args.length>1){
+			prefix=args[1];
+		}
+		boolean testOnly=false;
+		if(args.length>2){
+			testOnly=true;
+		}
 		String inputPath = args[0];
 		
 		// if single file , treat as input file which has list of file paths per line , else scan the directory for PDFS
@@ -233,7 +245,7 @@ public class PDFChanger {
 		}
 		for(String filePath:filePathList){
 			try {
-				new PDFChanger(filePath, prefix).processFile();
+				new PDFChanger(filePath, prefix,testOnly).processFile();
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				System.out.println("skipping to next file ");

@@ -23,7 +23,10 @@ public class FileLocator {
 				);
 		List<String> result=new ArrayList<String>();
 		for(File f:files){
-			result.add(f.getAbsolutePath());
+			if(!f.getAbsolutePath().contains("NBPBKP")){
+				result.add(f.getAbsolutePath());
+			}
+			
 		}
 		return result;
 		
