@@ -3,6 +3,7 @@ package com.nw.itext.main;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.nio.file.CopyOption;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -98,7 +99,8 @@ public class PDFChanger {
 
 	private void UpdateAnnotation(PdfDictionary anotation, String oldTarget,
 			RuleMatcherIF ruleMatcher) {
-		try{			
+		try{
+			
 			String newTargetUrl = ruleMatcher.createURIStr(oldTarget);
 			PdfAction action = new PdfAction("http://");
 			anotation.put(PdfName.A, action);		
@@ -168,19 +170,25 @@ public class PDFChanger {
 			processPage();
 		}
 
-		PdfStamper stamper;
+		
 		try {
 			if (fileChanged) {
 				if (backupOldFile(this.currentFilePath)) {
-					Path oldFilePath = Paths.get(this.currentFilePath);	
+					Path oldFilePath = Paths.get(this.currentFilePath);
+					Path tmpFilePath = getPathAppendStr(this.currentFilePath,"_newTemp");	
 					try{
 						OutputStream outputStream = Files.newOutputStream(
-								oldFilePath, StandardOpenOption.TRUNCATE_EXISTING);					
-						stamper = new PdfStamper(reader, outputStream);
+								tmpFilePath, StandardOpenOption.CREATE);					
+						PdfStamper stamper = new PdfStamper(reader, outputStream);						
 						stamper.close();
+						reader.close();
+						Files.delete(oldFilePath);
+						Files.copy(tmpFilePath,oldFilePath, StandardCopyOption.REPLACE_EXISTING);
+						Files.delete(tmpFilePath);
 					}catch(FileSystemException ex){
+						ex.printStackTrace();
 						System.out.println(new LogRecord(currentFilePath, -1,
-								"warningo writing file" + ex.getMessage(), "warning"));
+								"warning writing file" + ex.getMessage(), "warning"));
 					}
 					
 				}
@@ -195,16 +203,20 @@ public class PDFChanger {
 
 	}
 
+	public static Path getPathAppendStr(String filePath,String suffix){			
+		String oldFileParent = filePath.substring(0,
+				filePath.lastIndexOf("\\"));
+		String oldFileName = filePath.substring(filePath.lastIndexOf("\\"));
+		oldFileName +=suffix;
+		Path newFilePath = Paths.get(oldFileParent + oldFileName);
+		return newFilePath;
+	}
 	private boolean backupOldFile(String filePath) {
 
 		try {
 						
-			Path oldFilePath = Paths.get(filePath);
-			String oldFileParent = filePath.substring(0,
-					filePath.lastIndexOf("\\"));
-			String oldFileName = filePath.substring(filePath.lastIndexOf("\\"));
-			oldFileName += "_NBPBKP.pdf";
-			Path bkpFilePath = Paths.get(oldFileParent + oldFileName);
+			Path oldFilePath = Paths.get(filePath);			
+			Path bkpFilePath = getPathAppendStr(filePath, "_NBPBKP.pdf");
 			Files.copy(oldFilePath, bkpFilePath,
 					StandardCopyOption.REPLACE_EXISTING);
 			return true;
@@ -246,11 +258,20 @@ public class PDFChanger {
 		for(String filePath:filePathList){
 			try {
 				new PDFChanger(filePath, prefix,testOnly).processFile();
+				Path oldFilePath = Paths.get(filePath);
+				Path tmpFilePath = getPathAppendStr(filePath,"_newTemp");
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				System.out.println("skipping to next file ");
 			}	
-		}		
+		}	
+		System.out.println("Verifing Files ...");
+		for(String filePath:filePathList){
+			if(!PDFVerifier.isVerified(filePath)){
+				System.err.println(new LogRecord(filePath, -1,
+						"Failed to Verify currentFile ", "Error"));
+			}		
+		}
 		System.out.println("Done");
 
 	}
