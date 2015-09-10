@@ -1,11 +1,7 @@
 package com.nw.itext.processors;
-import static org.junit.Assert.*;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.nw.itext.processors.ParentFolderRuleMatcher;
 
 
 public class ParentFolderRuleMatcherTest {

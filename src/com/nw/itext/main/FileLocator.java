@@ -40,8 +40,16 @@ public class FileLocator {
 			} else {
 				try {
 					filePath = filePath.replaceAll(" ", "%20");// fix spaces
-
-					result.add(filePath);
+					File f = new File(filePath);
+					if(f.exists() ) {
+						if(f.isDirectory()){
+							result.addAll(FileLocator.findPdfFilesFromDir(filePath));
+						}
+						else{
+							result.add(filePath);
+						}
+					}					
+					
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					System.out.println("skipping to next file ");
@@ -54,14 +62,14 @@ public class FileLocator {
 		
 	}
 	public static List<String> generateFilePathList(String inputPath) throws IOException{
-		List<String> filePathList=null;
+		List<String> filePathList=new ArrayList<String>();;
 		File f = new File(inputPath);
 		if(f.exists() ) {
 			if(f.isDirectory()){
-				filePathList=FileLocator.findPdfFilesFromDir(inputPath);
+				filePathList.addAll(FileLocator.findPdfFilesFromDir(inputPath));
 			}
 			else{
-				filePathList=FileLocator.loadFilePathsFromFile(inputPath);
+				filePathList.addAll(FileLocator.loadFilePathsFromFile(inputPath));
 			}
 		}
 		

@@ -7,6 +7,7 @@ public class PDFVerifier {
 	public static boolean isVerified(String filePath) {
 		try{
 			PdfReader reader=new PdfReader(filePath);
+			reader.close();
 			return true;
 		}catch (Exception e) {
 			

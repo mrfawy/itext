@@ -3,7 +3,6 @@ package com.nw.itext.main;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.nio.file.CopyOption;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,15 +34,17 @@ public class PDFChanger {
 
 	private boolean testOnly = false;
 	private boolean fileChanged=false;
+	private boolean verbose=false;
 
 	private static List<RuleMatcherIF> ruleMatchers;
 	
 	
 
-	public PDFChanger(String filePath, String prefix, boolean testOnly) throws IOException,
+	public PDFChanger(String filePath, String prefix, boolean testOnly,boolean verbose) throws IOException,
 			URISyntaxException {
 		this.prefix = prefix;
 		this.testOnly=testOnly;
+		this.verbose=verbose;
 		this.currentFilePath = filePath;
 		this.reader = new PdfReader(filePath);
 		registerRuleMachers();
@@ -107,11 +108,13 @@ public class PDFChanger {
 			action.put(PdfName.URI, new PdfString(newTargetUrl));
 			if(!testOnly){
 				fileChanged = true;
+			}	
+			if(this.verbose){
+				System.out
+				.println(new LogRecord(currentFilePath, currentPDFPage,
+						"Source: " + oldTarget + "\tTarget: " + newTargetUrl,
+						"success"));
 			}			
-			System.out
-					.println(new LogRecord(currentFilePath, currentPDFPage,
-							"Source: " + oldTarget + "\tTarget: " + newTargetUrl,
-							"success"));
 		}catch(Exception e){
 			System.err.println(oldTarget);
 			e.printStackTrace();
@@ -187,8 +190,8 @@ public class PDFChanger {
 						Files.delete(tmpFilePath);
 					}catch(FileSystemException ex){
 						ex.printStackTrace();
-						System.out.println(new LogRecord(currentFilePath, -1,
-								"warning writing file" + ex.getMessage(), "warning"));
+						System.err.println(new LogRecord(currentFilePath, -1,
+								"Error writing file" + ex.getMessage(), "warning"));
 					}
 					
 				}
@@ -197,7 +200,7 @@ public class PDFChanger {
 
 		} catch (DocumentException | IOException  e) {
 			e.printStackTrace();
-			System.out.println(new LogRecord(currentFilePath, -1,
+			System.err.println(new LogRecord(currentFilePath, -1,
 					"Failed to write file", "Error"));
 		}
 
@@ -220,10 +223,9 @@ public class PDFChanger {
 			Files.copy(oldFilePath, bkpFilePath,
 					StandardCopyOption.REPLACE_EXISTING);
 			return true;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e) {			
 			e.printStackTrace();
-			System.out.println(new LogRecord(currentFilePath, -1,
+			System.err.println(new LogRecord(currentFilePath, -1,
 					"Failed to backup currentFile ", "Error"));
 			return false;
 
@@ -231,48 +233,41 @@ public class PDFChanger {
 
 	}
 
-	public static void main(String[] args) throws IOException {
-
-		if (args == null || args.length < 1) {
-			System.err
-					.println("Missing input : file path to input.txt which contains all files to be processed, or a directory to scan for PDFs");
+	public static void main(String[] args) throws IOException {		
+		System.out.println("Initializing ...");
+		//load Configuration
+		String configLocation = "Config.properties";
+		ConfigLoader configLoader=new ConfigLoader();
+		if(!configLoader.loadConfig(configLocation)){
+			System.err.println("Error: Loading config file , please check Config.properties File exists.");
 			return;
 		}
-		//default prefix
-		String prefix = "../center/NBPElibContentLoad.cfm?FilePath=";
-		if(args.length>1){
-			prefix=args[1];
-		}
-		boolean testOnly=false;
-		if(args.length>2){
-			testOnly=true;
-		}
-		String inputPath = args[0];
-		
+		System.out.println("Generating File list ...");
 		// if single file , treat as input file which has list of file paths per line , else scan the directory for PDFS
-		List<String> filePathList=FileLocator.generateFilePathList(inputPath);	
+		List<String> filePathList=FileLocator.generateFilePathList(configLoader.getInputSrc());	
 		if(filePathList==null){
-			System.err.println("Error: No files Found!, please check your input. ");
+			System.err.println("Error: No Input files Found!, please check your input. ");
 			return;
 		}
+		System.out.println("Processing Files ...");
 		for(String filePath:filePathList){
 			try {
-				new PDFChanger(filePath, prefix,testOnly).processFile();
-				Path oldFilePath = Paths.get(filePath);
-				Path tmpFilePath = getPathAppendStr(filePath,"_newTemp");
+				new PDFChanger(filePath, configLoader.getPrefix(),configLoader.getTestOnly(),configLoader.getVerbose()).processFile();				
 			} catch (Exception ex) {
 				ex.printStackTrace();
-				System.out.println("skipping to next file ");
+				System.err.println("skipping to next file ");
 			}	
 		}	
-		System.out.println("Verifing Files ...");
-		for(String filePath:filePathList){
-			if(!PDFVerifier.isVerified(filePath)){
-				System.err.println(new LogRecord(filePath, -1,
-						"Failed to Verify currentFile ", "Error"));
-			}		
-		}
-		System.out.println("Done");
+		if(configLoader.getVerify()){
+			System.out.println("Verifing Files ...");
+			for(String filePath:filePathList){
+				if(!PDFVerifier.isVerified(filePath)){
+					System.err.println(new LogRecord(filePath, -1,
+							"Failed to Verify currentFile ", "Error"));
+				}		
+			}
+		}		
+		System.out.println("Done!");
 
 	}
 }
