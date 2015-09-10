@@ -20,10 +20,6 @@ import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfString;
-import com.nw.itext.pdfchanger.app.ConfigLoader;
-import com.nw.itext.pdfchanger.app.FileLocator;
-import com.nw.itext.pdfchanger.app.LogRecord;
-import com.nw.itext.pdfchanger.app.PDFVerifier;
 import com.nw.itext.processors.ParentFolderRuleMatcher;
 import com.nw.itext.processors.RuleMatcherIF;
 import com.nw.itext.processors.ServerRuleMatcher;
@@ -236,8 +232,9 @@ public class PDFChanger {
 		}
 
 	}
+	
 
-	public static void main(String[] args) throws IOException {		
+	public static void main(String[] args) {		
 		System.out.println("Initializing ...");
 		//load Configuration
 		String configLocation = "Config.properties";
@@ -248,7 +245,15 @@ public class PDFChanger {
 		}
 		System.out.println("Generating File list ...");
 		// if single file , treat as input file which has list of file paths per line , else scan the directory for PDFS
-		List<String> filePathList=new FileLocator(configLoader.getInputSrc()).generateFilePathList();	
+		List<String> filePathList;
+		try {
+			filePathList = new FileLocator(configLoader.getInputSrc()).generateFilePathList();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.err.println("Error: Failed to generate List of file(s) to be processed ,Please recheck InputSrc file");
+			return ;
+		}	
 		if(filePathList==null){
 			System.err.println("Error: No Input files Found!, please check your input. ");
 			return;
