@@ -27,7 +27,7 @@ public class ParentFolderRuleMatcherTest {
 	public void testPopFolders(){
 		String result=matcher.popFolders("file://urbwsr01/manuals/commerciallines/emanual/farm/farm-manual/CA-NICOA//CA-FLZ-endsummary.pdf", 4);
 		Assert.assertEquals(
-				"file://urbwsr01/manuals/commerciallines/",
+				"file:\\\\urbwsr01\\manuals\\commerciallines/",
 				result);
 	}
 	

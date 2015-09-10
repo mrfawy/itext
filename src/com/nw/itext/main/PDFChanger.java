@@ -1,23 +1,16 @@
 package com.nw.itext.main;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.RegexFileFilter;
 
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfAction;
@@ -43,6 +36,8 @@ public class PDFChanger {
 	private boolean fileChanged=false;
 
 	private static List<RuleMatcherIF> ruleMatchers;
+	
+	
 
 	public PDFChanger(String filePath, String prefix, boolean testOnly) throws IOException,
 			URISyntaxException {
@@ -57,7 +52,7 @@ public class PDFChanger {
 	private void registerRuleMachers() {
 		if (ruleMatchers == null) {
 			ruleMatchers = new ArrayList<RuleMatcherIF>();
-			ruleMatchers.add(new SimpleFileNameRuleMatcher(prefix));
+			ruleMatchers.add(new SimpleFileNameRuleMatcher(prefix,currentFilePath));
 			ruleMatchers.add(new ParentFolderRuleMatcher(prefix,
 					currentFilePath));
 			ruleMatchers.add(new ServerRuleMatcher(prefix));
@@ -103,12 +98,11 @@ public class PDFChanger {
 
 	private void UpdateAnnotation(PdfDictionary anotation, String oldTarget,
 			RuleMatcherIF ruleMatcher) {
-		try{
+		try{			
 			String newTargetUrl = ruleMatcher.createURIStr(oldTarget);
 			PdfAction action = new PdfAction("http://");
-			anotation.put(PdfName.A, action);
-			PdfDictionary ac = anotation.getAsDict(PdfName.A);
-			ac.put(PdfName.URI, new PdfString(newTargetUrl));
+			anotation.put(PdfName.A, action);		
+			action.put(PdfName.URI, new PdfString(newTargetUrl));
 			if(!testOnly){
 				fileChanged = true;
 			}			
@@ -138,7 +132,7 @@ public class PDFChanger {
 
 	public boolean isProcessedBefore(PdfDictionary annotation) {
 		if (annotation == null || annotation.getAsDict(PdfName.A) == null) {
-			return false;
+			return true;
 		}
 
 		try {
@@ -178,11 +172,17 @@ public class PDFChanger {
 		try {
 			if (fileChanged) {
 				if (backupOldFile(this.currentFilePath)) {
-					Path oldFilePath = Paths.get(this.currentFilePath);					
-					OutputStream outputStream = Files.newOutputStream(
-							oldFilePath, StandardOpenOption.CREATE);
-					stamper = new PdfStamper(reader, outputStream);
-					stamper.close();
+					Path oldFilePath = Paths.get(this.currentFilePath);	
+					try{
+						OutputStream outputStream = Files.newOutputStream(
+								oldFilePath, StandardOpenOption.TRUNCATE_EXISTING);					
+						stamper = new PdfStamper(reader, outputStream);
+						stamper.close();
+					}catch(FileSystemException ex){
+						System.out.println(new LogRecord(currentFilePath, -1,
+								"warningo writing file" + ex.getMessage(), "warning"));
+					}
+					
 				}
 
 			}

@@ -10,7 +10,7 @@ public class AbstractRuleMatcherTest {
 
 	@Before
 	public void setUp() throws Exception {
-		matcher = new SimpleFileNameRuleMatcher("");
+		matcher = new SimpleFileNameRuleMatcher("","");
 	}
 
 	@Test

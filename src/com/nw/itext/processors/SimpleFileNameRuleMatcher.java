@@ -1,11 +1,22 @@
 package com.nw.itext.processors;
 
-public class SimpleFileNameRuleMatcher extends AbstractRuleMatcher {
-	
-	private String prefix;
+import java.util.ArrayList;
+import java.util.List;
 
-	public SimpleFileNameRuleMatcher(String prefix) {		
-		this.prefix=prefix;
+public class SimpleFileNameRuleMatcher extends AbstractRuleMatcher {
+
+	private String prefix;
+	private String filePath;
+	private List<RuleMatcherIF> complementMatchers;
+
+	public SimpleFileNameRuleMatcher(String prefix, String filePath) {
+		this.prefix = prefix;
+		this.filePath = filePath;
+		if (filePath.startsWith("file://")) {
+			filePath = filePath.substring(6);
+		}
+		complementMatchers = new ArrayList<RuleMatcherIF>();
+		complementMatchers.add(new ServerRuleMatcher(prefix));
 
 	}
 
@@ -17,18 +28,41 @@ public class SimpleFileNameRuleMatcher extends AbstractRuleMatcher {
 		if (target == null || target.isEmpty()) {
 			return false;
 		}
-		/*if (target.startsWith("..") || target.startsWith("/")) {
-			return false;
-		}*/
-		if (target.toLowerCase().endsWith(".pdf")&&!target.contains("/")) {
+		/*
+		 * if (target.startsWith("..") || target.startsWith("/")) { return
+		 * false; }
+		 */
+		if (target.toLowerCase().endsWith(".pdf") && !target.contains("/")) {
 			return true;
 		}
 		return false;
 	}
 
+	public String getParentPath(String path) {
+		path = path.replace("//", "/");
+		path = path.replace("file:/", "file://");
+		path = path.replace("/", "\\");
+
+		int lastIndex = path.lastIndexOf("\\");
+		if(lastIndex!=-1){
+			path = path.substring(0, lastIndex);	
+		}
+		
+
+		path += "/";
+		return path;
+	}
+
 	@Override
 	public String createURIStr(String target) {
-		String result = prefix+target;
+		String parentpath=getParentPath(filePath);
+		// remove server
+		for (RuleMatcherIF matcher : complementMatchers) {
+			if (matcher.isRuleMachingTargetFile(parentpath)) {
+				parentpath = matcher.createURIStr(parentpath);
+			}
+		}
+		String result = parentpath+ target;
 		return result;
 	}
 }

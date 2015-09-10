@@ -9,7 +9,7 @@ public class SimpleFileNameRuleMatcherTest {
 
 	@Before
 	public void setUp() throws Exception {
-		matcher = new SimpleFileNameRuleMatcher("PREFIX/");
+		matcher = new SimpleFileNameRuleMatcher("PREFIX/","");
 	}
 
 	@Test
@@ -23,8 +23,8 @@ public class SimpleFileNameRuleMatcherTest {
 
 	@Test
 	public void test() {
-		String result = matcher.createURIStr("myfile.pdf");
-		Assert.assertEquals("PREFIX/myfile.pdf", result);
+		String result = matcher.createURIStr("/manual/myfile.pdf");
+		Assert.assertEquals("PREFIX/manual/myfile.pdf", result);
 	}
 
 }
