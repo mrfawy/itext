@@ -60,6 +60,6 @@
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
   <testcase time="0" classname="com.nw.itext.processors.ParentFolderRuleMatcherTest" name="test"/>
-  <testcase time="0" classname="com.nw.itext.processors.ParentFolderRuleMatcherTest" name="testPopFolders"/>
   <testcase time="0" classname="com.nw.itext.processors.ParentFolderRuleMatcherTest" name="testCountUps"/>
+  <testcase time="0" classname="com.nw.itext.processors.ParentFolderRuleMatcherTest" name="testPopFolders"/>
 </testsuite>

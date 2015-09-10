@@ -164,7 +164,7 @@ public class PDFChanger {
 			return fAnnot.get(PdfName.F).toString();
 		}
 		throw new RuntimeException(
-				"Unable to extract old file target from annotation");
+				"Unable to extract old file target from annotation, PATH: "+this.currentFilePath);
 
 	}
 
