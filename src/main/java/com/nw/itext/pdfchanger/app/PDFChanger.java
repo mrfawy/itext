@@ -127,7 +127,7 @@ public class PDFChanger {
 		if (subType != null && PdfName.LINK.equals(subType)) {
 			PdfDictionary action = annotation.getAsDict(PdfName.A);
 			// skip if already processed before
-			if (action != null && !isProcessedBefore(annotation)) {
+			if (action != null && action.getAsDict(PdfName.F)!=null &&action.getAsDict(PdfName.F).get(PdfName.F)!=null && !isProcessedBefore(annotation)) {
 				return true;
 			}
 		}
@@ -258,7 +258,10 @@ public class PDFChanger {
 			System.err.println("Error: No Input files Found!, please check your input. ");
 			return;
 		}
-		System.out.println("Processing Files ...");
+		System.out.println("Processing [" +filePathList.size() +" ] File(s) ...");
+		if(configLoader.getTestOnly()){
+			System.out.println("Tesing only Mode , no changes will be applied  to files ...");
+		}
 		for(String filePath:filePathList){
 			try {
 				new PDFChanger(filePath, configLoader.getPrefix(),configLoader.getTestOnly(),configLoader.getVerbose()).processFile();				

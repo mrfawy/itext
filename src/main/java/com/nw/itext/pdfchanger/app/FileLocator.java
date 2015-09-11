@@ -45,9 +45,9 @@ public class FileLocator {
 			if (filePath.isEmpty() || filePath.startsWith("#")) {
 				continue;
 			} else {
-				try {
-					filePath = filePath.replaceAll(" ", "%20");// fix spaces
-					File f = new File(filePath);
+				File f;
+				try {					
+					f = new File(filePath);					
 					if(f.exists()&&f.canRead() ) {
 						if(f.isDirectory()){
 							result.addAll(FileLocator.findPdfFilesFromDir(filePath));
@@ -63,7 +63,7 @@ public class FileLocator {
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					System.err.println("skipping to next file ");
-				}
+				}				
 
 			}
 
