@@ -95,7 +95,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>com.nw.itext.pdfchanger.app.PDFChanger</mainClass>
+							<mainClass>com.nw.itext.pdfchanger.app.App</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

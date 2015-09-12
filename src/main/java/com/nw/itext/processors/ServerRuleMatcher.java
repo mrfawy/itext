@@ -37,7 +37,7 @@ public class ServerRuleMatcher extends AbstractRuleMatcher {
 			if (matcher.find()) {
 				int index = matcher.end();// looks  after  server  name
 				String result = target.substring(index);
-				result = result.replace("/", "\\/");
+				result = result.replace("/", "\\");
 				return result;
 			}
 		}

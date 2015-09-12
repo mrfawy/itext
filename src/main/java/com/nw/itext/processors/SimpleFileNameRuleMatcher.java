@@ -12,7 +12,7 @@ public class SimpleFileNameRuleMatcher extends AbstractRuleMatcher {
 	public SimpleFileNameRuleMatcher(String prefix, String filePath) {
 		this.prefix = prefix;
 		this.filePath = filePath;
-		if (filePath.startsWith("file://")) {
+		if (filePath.startsWith("file://")||filePath.startsWith("File://")) {
 			filePath = filePath.substring(6);
 		}
 		complementMatchers = new ArrayList<RuleMatcherIF>();
@@ -40,6 +40,7 @@ public class SimpleFileNameRuleMatcher extends AbstractRuleMatcher {
 
 	public String getParentPath(String path) {
 		path = path.replace("//", "/");
+		path.replace("File:", "file:");
 		path = path.replace("file:/", "file://");
 		path = path.replace("/", "\\");
 
@@ -49,7 +50,7 @@ public class SimpleFileNameRuleMatcher extends AbstractRuleMatcher {
 		}
 		
 
-		path += "/";
+		path += "\\";
 		return path;
 	}
 

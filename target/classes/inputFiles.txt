@@ -1,4 +1,0 @@
-# Sample format , \\urbwsr01\manuals\Commerciallines\eManual\BOP-Premier\BOP-Manual-DAA\DAA-BP_-StatePages-CO-2009-11.pdf , for single file 
-# Sample format , \\urbwsr01\manuals\Commerciallines\eManual\BOP-Premier\BOP-Manual-DAA\ , for all files 
-#\\urbwsr01\manuals\Commerciallines\eManual\Farm\Farm-Manual\CA-NBPTEST
-\\urbwsr01\manuals\Commerciallines\eManual\BOP-Premier\BOP-Manual-DAA\DAA-BP_-StatePages-CO-2009-11.pdf

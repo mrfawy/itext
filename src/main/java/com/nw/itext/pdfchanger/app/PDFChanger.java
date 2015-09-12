@@ -36,7 +36,8 @@ public class PDFChanger {
 	private boolean fileChanged=false;
 	private boolean verbose=false;
 
-	private static List<RuleMatcherIF> ruleMatchers;
+	private List<RuleMatcherIF> ruleMatchers;
+	
 	
 	
 
@@ -164,7 +165,7 @@ public class PDFChanger {
 
 	}
 
-	public void processFile() {
+	public boolean processFile() {
 
 		int numberOfPages = reader.getNumberOfPages();
 
@@ -188,10 +189,12 @@ public class PDFChanger {
 						Files.delete(oldFilePath);
 						Files.copy(tmpFilePath,oldFilePath, StandardCopyOption.REPLACE_EXISTING);
 						Files.delete(tmpFilePath);
+						return true;
 					}catch(FileSystemException ex){
 						ex.printStackTrace();
 						System.err.println(new LogRecord(currentFilePath, -1,
 								"Error writing file" + ex.getMessage(), "warning"));
+						return false;
 					}
 					
 				}
@@ -202,11 +205,13 @@ public class PDFChanger {
 			e.printStackTrace();
 			System.err.println(new LogRecord(currentFilePath, -1,
 					"Failed to write file", "Error"));
+			return false;
 		}
+		return false;
 
 	}
 
-	public static Path getPathAppendStr(String filePath,String suffix){			
+	public Path getPathAppendStr(String filePath,String suffix){			
 		String oldFileParent = filePath.substring(0,
 				filePath.lastIndexOf("\\"));
 		String oldFileName = filePath.substring(filePath.lastIndexOf("\\"));
@@ -234,7 +239,8 @@ public class PDFChanger {
 	}
 	
 
-	public static void main(String[] args) {		
+	public static void main(String[] args) {	
+		
 		System.out.println("Initializing ...");
 		//load Configuration
 		String configLocation = "Config.properties";
@@ -247,7 +253,7 @@ public class PDFChanger {
 		// if single file , treat as input file which has list of file paths per line , else scan the directory for PDFS
 		List<String> filePathList;
 		try {
-			filePathList = new FileLocator(configLoader.getInputSrc()).generateFilePathList();
+			filePathList = new FileLocator(configLoader.getInputSrc(),false,configLoader.getVerbose()).generateFilePathList();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -262,17 +268,21 @@ public class PDFChanger {
 		if(configLoader.getTestOnly()){
 			System.out.println("Tesing only Mode , no changes will be applied  to files ...");
 		}
+		List<String> modifiedFiles= new ArrayList<String>();
 		for(String filePath:filePathList){
 			try {
-				new PDFChanger(filePath, configLoader.getPrefix(),configLoader.getTestOnly(),configLoader.getVerbose()).processFile();				
+				if(new PDFChanger(filePath, configLoader.getPrefix(),configLoader.getTestOnly(),configLoader.getVerbose()).processFile()){
+					modifiedFiles.add(filePath);
+				};				
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				System.err.println("skipping to next file ");
 			}	
-		}	
+		}			
 		if(configLoader.getVerify()){
 			System.out.println("Verifing Files ...");
-			for(String filePath:filePathList){
+			for(String filePath:modifiedFiles){
+				System.out.println(filePath);
 				if(!PDFVerifier.isVerified(filePath)){
 					System.err.println(new LogRecord(filePath, -1,
 							"Failed to Verify currentFile ", "Error"));

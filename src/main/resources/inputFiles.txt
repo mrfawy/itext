@@ -1,4 +1,11 @@
-# Sample format , \\urbwsr01\manuals\Commerciallines\eManual\BOP-Premier\BOP-Manual-DAA\DAA-BP_-StatePages-CO-2009-11.pdf , for single file 
-# Sample format , \\urbwsr01\manuals\Commerciallines\eManual\BOP-Premier\BOP-Manual-DAA\ , for all files 
-#\\urbwsr01\manuals\Commerciallines\eManual\Farm\Farm-Manual\CA-NBPTEST
-\\urbwsr01\manuals\Commerciallines\eManual\BOP-Premier\BOP-Manual-DAA\DAA-BP_-StatePages-CO-2009-11.pdf
+\\urbwsr01\manuals\commerciallines\emanual\GLF-AlliedSeries\ND\GLF-ND-01-06.pdf
+\\urbwsr01\manuals\commerciallines\emanual\GLF-AlliedSeries\ND\GLF-ND-03-98.pdf
+\\urbwsr01\manuals\commerciallines\emanual\GLF-AlliedSeries\ND\GLF-ND-06-03.pdf
+\\urbwsr01\manuals\commerciallines\emanual\GLF-AlliedSeries\ND\GLF-ND-10-02.pdf
+\\urbwsr01\manuals\commerciallines\emanual\GLF-AlliedSeries\ND\GLF-ND-11-06.pdf
+\\urbwsr01\manuals\commerciallines\emanual\GLF-AlliedSeries\NE\GLF-NE-06-98.pdf
+\\urbwsr01\manuals\commerciallines\emanual\GLF-AlliedSeries\NE\GLF-NE-02-03.pdf
+\\urbwsr01\manuals\commerciallines\emanual\GLF-AlliedSeries\NE\GLF-NE-06-10.pdf
+\\urbwsr01\manuals\commerciallines\emanual\GLF-AlliedSeries\NE\GLF-NE-09-02.pdf
+\\urbwsr01\manuals\commerciallines\emanual\GLF-AlliedSeries\NE\GLF-NE-09-06.pdf
+\\urbwsr01\manuals\commerciallines\emanual\GLF-AlliedSeries\NE\GLF-NE-11-05.pdf

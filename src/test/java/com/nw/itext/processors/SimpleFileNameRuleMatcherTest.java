@@ -23,8 +23,8 @@ public class SimpleFileNameRuleMatcherTest {
 
 	@Test
 	public void test() {
-		String result = matcher.createURIStr("/manual/myfile.pdf");
-		Assert.assertEquals("//manual/myfile.pdf", result);
+		String result = matcher.createURIStr("myfile.pdf");
+		Assert.assertEquals("\\myfile.pdf", result);
 	}
 
 }

@@ -32,7 +32,7 @@ public class ServerRuleMatcherTest {
 		String result = matcher
 				.removeServer("/urbwsr01/manuals/Commerciallines/eManual/BOP-Premier//BOP-Manual-DAA/DAA-BP_-StatePages-SC-2014-08.pdf");
 		Assert.assertEquals(
-				"\\/manuals\\/Commerciallines\\/eManual\\/BOP-Premier\\/BOP-Manual-DAA\\/DAA-BP_-StatePages-SC-2014-08.pdf",
+				"\\manuals\\Commerciallines\\eManual\\BOP-Premier\\BOP-Manual-DAA\\DAA-BP_-StatePages-SC-2014-08.pdf",
 				result);
 	}
 	@Test
@@ -40,7 +40,7 @@ public class ServerRuleMatcherTest {
 		String result = matcher
 				.removeServer("urbwsr01/manuals/Commerciallines/eManual/BOP-Premier//BOP-Manual-DAA/DAA-BP_-StatePages-SC-2014-08.pdf");
 		Assert.assertEquals(
-				"\\/manuals\\/Commerciallines\\/eManual\\/BOP-Premier\\/BOP-Manual-DAA\\/DAA-BP_-StatePages-SC-2014-08.pdf",
+				"\\manuals\\Commerciallines\\eManual\\BOP-Premier\\BOP-Manual-DAA\\DAA-BP_-StatePages-SC-2014-08.pdf",
 				result);
 	}
 
@@ -50,7 +50,7 @@ public class ServerRuleMatcherTest {
 		String result = matcher
 				.removeServer("/URBWSR01/manuals/Commerciallines/eManual/BOP-Premier//BOP-Manual-DAA/DAA-BP_-StatePages-SC-2014-08.pdf");
 		Assert.assertEquals(
-				"\\/manuals\\/Commerciallines\\/eManual\\/BOP-Premier\\/BOP-Manual-DAA\\/DAA-BP_-StatePages-SC-2014-08.pdf",
+				"\\manuals\\Commerciallines\\eManual\\BOP-Premier\\BOP-Manual-DAA\\DAA-BP_-StatePages-SC-2014-08.pdf",
 				result);
 	}
 	@Test
@@ -58,7 +58,7 @@ public class ServerRuleMatcherTest {
 		String result = matcher
 				.removeServer("/urbwsr01.allied.nwie.net/manuals/Commerciallines/eManual/BOP-Premier//BOP-Manual-DAA/DAA-BP_-StatePages-SC-2014-08.pdf");
 		Assert.assertEquals(
-				"\\/manuals\\/Commerciallines\\/eManual\\/BOP-Premier\\/BOP-Manual-DAA\\/DAA-BP_-StatePages-SC-2014-08.pdf",
+				"\\manuals\\Commerciallines\\eManual\\BOP-Premier\\BOP-Manual-DAA\\DAA-BP_-StatePages-SC-2014-08.pdf",
 				result);
 	}
 
