@@ -105,7 +105,7 @@ public class PDFChanger implements FileProcessorIF {
 			if (!ConfigLoader.getInstance().getTestOnly()) {
 				fileChanged = true;
 			}
-			if (!ConfigLoader.getInstance().getVerbose()) {
+			if (ConfigLoader.getInstance().getVerbose()) {
 				System.out.println(new LogRecord(currentFilePath,
 						currentPDFPage, "Source: " + oldTarget + "\tTarget: "
 								+ newTargetUrl, "success"));
