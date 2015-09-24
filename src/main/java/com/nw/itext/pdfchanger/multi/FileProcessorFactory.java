@@ -1,6 +1,5 @@
 package com.nw.itext.pdfchanger.multi;
 
-import com.nw.itext.pdfchanger.app.ConfigLoader;
 import com.nw.itext.pdfchanger.fileprocessors.FileProcessorIF;
 import com.nw.itext.pdfchanger.fileprocessors.PDFChanger;
 import com.nw.itext.pdfchanger.fileprocessors.PDFRollBack;
@@ -10,13 +9,11 @@ import com.nw.itext.pdfchanger.fileprocessors.PDFVerifier;
 public class FileProcessorFactory {
 
 	private FileProcessorTypeEnum fileProcessorTypeEnum;
-	private ConfigLoader configLoader;
 
-	public FileProcessorFactory(FileProcessorTypeEnum fileProcessorTypeEnum,
-			ConfigLoader configLoader) {
+	public FileProcessorFactory(FileProcessorTypeEnum fileProcessorTypeEnum) {
 		super();
 		this.fileProcessorTypeEnum = fileProcessorTypeEnum;
-		this.configLoader = configLoader;
+
 	}
 
 	public FileProcessorIF createFileProcessor(String filePath,
@@ -24,12 +21,11 @@ public class FileProcessorFactory {
 		FileProcessorIF result = null;
 		switch (fileProcessorType) {
 		case PDFCHANGER: {
-			result = new PDFChanger(filePath, configLoader.getPrefix(),
-					configLoader.getTestOnly(), configLoader.getVerbose());
+			result = new PDFChanger(filePath);
 		}
 			break;
 		case PDFROLLBACK: {
-			result = new PDFRollBack(filePath, configLoader.getBkpSuffix());
+			result = new PDFRollBack(filePath);
 		}
 			;
 			break;

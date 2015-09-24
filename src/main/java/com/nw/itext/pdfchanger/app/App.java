@@ -20,8 +20,7 @@ public class App {
 		System.out.println("Initializing ...");
 		// load Configuration
 		String configLocation = "Config.properties";
-		ConfigLoader configLoader = new ConfigLoader();
-		if (!configLoader.loadConfig(configLocation)) {
+		if (!ConfigLoader.initInstance(configLocation)) {
 			System.err
 					.println("Error: Loading config file , please check Config.properties File exists.");
 			return;
@@ -31,8 +30,8 @@ public class App {
 		// line , else scan the directory for PDFS
 		List<String> filePathList;
 		try {
-			filePathList = new FileLocator(configLoader.getInputSrc(), false,
-					configLoader.getVerbose()).generateFilePathList();
+			filePathList = new FileLocator(ConfigLoader.getInstance()
+					.getInputSrc()).generateFilePathList();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -47,7 +46,7 @@ public class App {
 		}
 		System.out.println("Processing [" + filePathList.size()
 				+ " ] File(s) ...");
-		if (configLoader.getTestOnly()) {
+		if (ConfigLoader.getInstance().getTestOnly()) {
 			System.out
 					.println("Tesing only Mode , no changes will be applied  to files ...");
 		}
@@ -56,29 +55,32 @@ public class App {
 		FileProcessorFactory factory = null;
 		if ("change".equalsIgnoreCase(operation)) {
 			System.out.println("Mode : " + "Change PDFs");
-			factory = new FileProcessorFactory(
-					FileProcessorTypeEnum.PDFCHANGER, configLoader);
+			factory = new FileProcessorFactory(FileProcessorTypeEnum.PDFCHANGER);
 
 		} else if ("rollback".equalsIgnoreCase(operation)) {
 			System.out.println("Mode : " + "Rollback PDFs");
 			factory = new FileProcessorFactory(
-					FileProcessorTypeEnum.PDFROLLBACK, configLoader);
+					FileProcessorTypeEnum.PDFROLLBACK);
 		} else if ("scan".equalsIgnoreCase(operation)) {
 			System.out.println("Mode : " + "Scan PDFs");
-			factory = new FileProcessorFactory(
-					FileProcessorTypeEnum.PDFSCANNER, configLoader);
+			factory = new FileProcessorFactory(FileProcessorTypeEnum.PDFSCANNER);
+		} else if ("locate".equalsIgnoreCase(operation)) {
+			
+			System.out.println("Already located files");
+			return ;
+
 		} else {
 			System.err.println("Invalid operation , aborting ..");
 			return;
 		}
 
 		// create Thread pool
-		final ForkJoinPool pool = new ForkJoinPool(
-				configLoader.getThreadPoolSize());
+		final ForkJoinPool pool = new ForkJoinPool(ConfigLoader.getInstance()
+				.getThreadPoolSize());
 		List<String> modifiedFilePathList = new CopyOnWriteArrayList<String>();
 		ProcessListRecursiveAction action = new ProcessListRecursiveAction(
 				filePathList, modifiedFilePathList, 0, filePathList.size(),
-				factory, configLoader);
+				factory);
 		pool.invoke(action);
 	}
 

@@ -23,7 +23,7 @@ public class ProcessListRecursiveAction extends RecursiveAction {
 
 	public ProcessListRecursiveAction(List<String> srcFilePathList,
 			List<String> modifiedFilePathList, int startIndex, int endIndex,
-			FileProcessorFactory factory, ConfigLoader configLoader) {
+			FileProcessorFactory factory) {
 		super();
 		this.srcFilePathList = srcFilePathList;
 		this.modifiedFilePathList = modifiedFilePathList;
@@ -31,7 +31,7 @@ public class ProcessListRecursiveAction extends RecursiveAction {
 		this.endIndex = endIndex;
 		SEQUENTIAL_THRESHOLD = configLoader.getSequentialThreshold();
 		this.factory = factory;
-		this.configLoader = configLoader;
+		this.configLoader = ConfigLoader.getInstance();
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class ProcessListRecursiveAction extends RecursiveAction {
 					if (fileProcessor.processFile()) {
 						modifiedFilePathList.add(filePath);
 					}
-					//if verification is enable , verify file
+					//if verification is enabled , verify file
 					if (configLoader.getVerify()) {
 						FileProcessorIF verifier = factory.createFileProcessor(
 								filePath, FileProcessorTypeEnum.PDFVERIFIER);
@@ -59,16 +59,16 @@ public class ProcessListRecursiveAction extends RecursiveAction {
 						}
 					}
 				}
-
+			// run forks , divide and conquer list into two halfs 
 			} else {
 				int midIndex = (startIndex + endIndex) / 2;
 				ProcessListRecursiveAction left = new ProcessListRecursiveAction(
 						srcFilePathList, modifiedFilePathList, startIndex,
-						midIndex, factory, configLoader);
+						midIndex, factory);
 				left.fork();
 				ProcessListRecursiveAction right = new ProcessListRecursiveAction(
 						srcFilePathList, modifiedFilePathList, midIndex,
-						endIndex, factory, configLoader);
+						endIndex, factory);
 				right.fork();
 			}
 		}

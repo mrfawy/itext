@@ -7,7 +7,28 @@ import java.util.Properties;
 public class ConfigLoader {
 	private Properties prop;
 
-	public boolean loadConfig(String configPath) {
+	private static ConfigLoader me;
+
+	public static boolean initInstance(String configPath) {
+
+		me = new ConfigLoader();
+		return me.loadConfig(configPath);
+		
+	}
+
+	public static ConfigLoader getInstance() {
+		if (me == null) {
+			throw new RuntimeException(
+					"Config loader InitMethod should be called first");
+		}
+		return me;
+	}
+
+	private ConfigLoader() {
+		
+	}
+
+	private boolean loadConfig(String configPath) {
 		InputStream input = null;
 		try {
 
@@ -20,7 +41,7 @@ public class ConfigLoader {
 			return true;
 
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			ex.printStackTrace();			
 			return false;
 		} finally {
 			if (input != null) {
@@ -63,6 +84,7 @@ public class ConfigLoader {
 		return prop.get("Prefix").toString();
 
 	}
+
 	public int getThreadPoolSize() {
 		if (prop == null || !prop.containsKey("ThreadPoolSize")) {
 			throw new RuntimeException(
@@ -71,6 +93,7 @@ public class ConfigLoader {
 		return Integer.parseInt(prop.get("ThreadPoolSize").toString());
 
 	}
+
 	public int getSequentialThreshold() {
 		if (prop == null || !prop.containsKey("SequentialThreshold")) {
 			throw new RuntimeException(
@@ -79,10 +102,8 @@ public class ConfigLoader {
 		return Integer.parseInt(prop.get("SequentialThreshold").toString());
 
 	}
-	
-	
-	
-	public String getBkpSuffix(){
+
+	public String getBkpSuffix() {
 		if (prop == null || !prop.containsKey("BkpSuffix")) {
 			throw new RuntimeException(
 					"Property Not found: BkpSuffix , check Config.properties ");

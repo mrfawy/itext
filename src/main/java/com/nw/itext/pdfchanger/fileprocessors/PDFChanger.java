@@ -1,5 +1,6 @@
 package com.nw.itext.pdfchanger.fileprocessors;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.FileSystemException;
@@ -18,6 +19,7 @@ import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfString;
+import com.nw.itext.pdfchanger.app.ConfigLoader;
 import com.nw.itext.pdfchanger.app.LogRecord;
 import com.nw.itext.processors.ParentFolderRuleMatcher;
 import com.nw.itext.processors.RuleMatcherIF;
@@ -31,18 +33,17 @@ public class PDFChanger implements FileProcessorIF {
 	private int currentPDFPage = 1;
 	private String currentFilePath;
 
+	private ConfigLoader configLoader;
 	private boolean testOnly = false;
 	private boolean fileChanged = false;
 	private boolean verbose = false;
 
 	private List<RuleMatcherIF> ruleMatchers;
 
-	public PDFChanger(String filePath, String prefix, boolean testOnly,
-			boolean verbose) {
-		this.prefix = prefix;
-		this.testOnly = testOnly;
-		this.verbose = verbose;
+	public PDFChanger(String filePath) {
+		
 		this.currentFilePath = filePath;
+		this.configLoader=ConfigLoader.getInstance();
 		registerRuleMachers();
 
 	}
@@ -225,8 +226,14 @@ public class PDFChanger implements FileProcessorIF {
 
 		try {
 
-			Path oldFilePath = Paths.get(filePath);
-			Path bkpFilePath = getPathAppendStr(filePath, "_NBPBKP.pdf");
+			String fileName=filePath.substring(filePath.lastIndexOf("/")+1);
+			String bkpFolderPath= filePath.substring(0,filePath.lastIndexOf("/"))+configLoader.getBkpSuffix();
+			File bkpFolder=new File(bkpFolderPath);
+			if(!bkpFolder.exists()){
+				bkpFolder.mkdir();
+			}
+			Path oldFilePath=Paths.get(filePath);
+			Path bkpFilePath=Paths.get(bkpFolderPath+fileName);
 			Files.copy(oldFilePath, bkpFilePath,
 					StandardCopyOption.REPLACE_EXISTING);
 			return true;
