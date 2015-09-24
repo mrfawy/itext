@@ -63,6 +63,32 @@ public class ConfigLoader {
 		return prop.get("Prefix").toString();
 
 	}
+	public int getThreadPoolSize() {
+		if (prop == null || !prop.containsKey("ThreadPoolSize")) {
+			throw new RuntimeException(
+					"Property Not found: ThreadPoolSize , check Config.properties ");
+		}
+		return Integer.parseInt(prop.get("ThreadPoolSize").toString());
+
+	}
+	public int getSequentialThreshold() {
+		if (prop == null || !prop.containsKey("SequentialThreshold")) {
+			throw new RuntimeException(
+					"Property Not found: SequentialThreshold , check Config.properties ");
+		}
+		return Integer.parseInt(prop.get("SequentialThreshold").toString());
+
+	}
+	
+	
+	
+	public String getBkpSuffix(){
+		if (prop == null || !prop.containsKey("BkpSuffix")) {
+			throw new RuntimeException(
+					"Property Not found: BkpSuffix , check Config.properties ");
+		}
+		return prop.get("BkpSuffix").toString();
+	}
 
 	public boolean getBooleanValue(String key) {
 		if (prop == null || !prop.containsKey(key)) {
