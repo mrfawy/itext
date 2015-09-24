@@ -16,7 +16,7 @@ public class FileProcessorFactory {
 
 	}
 
-	public FileProcessorIF createFileProcessor(String filePath,
+	public synchronized FileProcessorIF  createFileProcessor(String filePath,
 			FileProcessorTypeEnum fileProcessorType) {
 		FileProcessorIF result = null;
 		switch (fileProcessorType) {
@@ -46,7 +46,7 @@ public class FileProcessorFactory {
 
 	}
 
-	public FileProcessorIF createFileProcessor(String filePath) {
+	public synchronized FileProcessorIF createFileProcessor(String filePath) {
 		return createFileProcessor(filePath, this.fileProcessorTypeEnum);
 	}
 

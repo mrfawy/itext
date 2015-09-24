@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
+import com.nw.itext.pdfchanger.app.ConfigLoader;
+
 public class FileLocatorTask extends RecursiveTask<List<String>> {
 
 	/**
@@ -29,7 +31,11 @@ public class FileLocatorTask extends RecursiveTask<List<String>> {
 			if (!file.isDirectory()) {
 				// add only pdf files
 				if (filePath.toLowerCase().endsWith(".pdf")) {
-					foundFilesList.add(filePath);
+					if (!filePath.contains(ConfigLoader.getInstance()
+							.getBkpSuffix())) {
+						foundFilesList.add(filePath);
+					}
+
 				}
 			}
 			// it's a directory , add all direct files , and fork sub-folders
@@ -43,7 +49,10 @@ public class FileLocatorTask extends RecursiveTask<List<String>> {
 					} else {
 						// add only pdf files
 						if (entry.getPath().toLowerCase().endsWith(".pdf")) {
-							foundFilesList.add(entry.getPath());
+							if (!entry.getPath().contains(
+									ConfigLoader.getInstance().getBkpSuffix())) {
+								foundFilesList.add(entry.getPath());
+							}
 						}
 					}
 				}

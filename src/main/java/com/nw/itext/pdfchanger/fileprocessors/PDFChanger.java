@@ -32,19 +32,17 @@ public class PDFChanger implements FileProcessorIF {
 	PdfReader reader;
 	private int currentPDFPage = 1;
 	private String currentFilePath;
-
-	private ConfigLoader configLoader;
-	private boolean testOnly = false;
+	
+	
 	private boolean fileChanged = false;
-	private boolean verbose = false;
+	
 
 	private List<RuleMatcherIF> ruleMatchers;
 
-	public PDFChanger(String filePath) {
-		
-		this.currentFilePath = filePath;
-		this.configLoader=ConfigLoader.getInstance();
+	public PDFChanger(String filePath) {		
+		this.currentFilePath = filePath;		
 		registerRuleMachers();
+		
 
 	}
 
@@ -104,10 +102,10 @@ public class PDFChanger implements FileProcessorIF {
 			PdfAction action = new PdfAction("http://");
 			anotation.put(PdfName.A, action);
 			action.put(PdfName.URI, new PdfString(newTargetUrl));
-			if (!testOnly) {
+			if (!ConfigLoader.getInstance().getTestOnly()) {
 				fileChanged = true;
 			}
-			if (this.verbose) {
+			if (!ConfigLoader.getInstance().getVerbose()) {
 				System.out.println(new LogRecord(currentFilePath,
 						currentPDFPage, "Source: " + oldTarget + "\tTarget: "
 								+ newTargetUrl, "success"));
@@ -166,14 +164,16 @@ public class PDFChanger implements FileProcessorIF {
 
 	public boolean processFile() {
 		try {
-			this.reader = new PdfReader(currentFilePath);
+			
+			
+			this.reader = new PdfReader(currentFilePath);			
 			int numberOfPages = reader.getNumberOfPages();
-
+			
 			for (int n = 1; n < numberOfPages; n++) {
 				currentPDFPage = n;
 				processPage();
 			}
-
+			
 			if (fileChanged) {
 				if (backupOldFile(this.currentFilePath)) {
 					Path oldFilePath = Paths.get(this.currentFilePath);
@@ -190,6 +190,7 @@ public class PDFChanger implements FileProcessorIF {
 						Files.copy(tmpFilePath, oldFilePath,
 								StandardCopyOption.REPLACE_EXISTING);
 						Files.delete(tmpFilePath);
+						System.out.println(currentFilePath);
 						return true;
 					} catch (FileSystemException ex) {
 						ex.printStackTrace();
@@ -224,16 +225,16 @@ public class PDFChanger implements FileProcessorIF {
 
 	private boolean backupOldFile(String filePath) {
 
-		try {
-
-			String fileName=filePath.substring(filePath.lastIndexOf("/")+1);
-			String bkpFolderPath= filePath.substring(0,filePath.lastIndexOf("/"))+configLoader.getBkpSuffix();
+		try {			
+			String fileName=filePath.substring(filePath.lastIndexOf("\\")+1);
+			String bkpFolderPath= filePath.substring(0,filePath.lastIndexOf("\\")+1)+ConfigLoader.getInstance().getBkpSuffix();
+						
 			File bkpFolder=new File(bkpFolderPath);
 			if(!bkpFolder.exists()){
 				bkpFolder.mkdir();
 			}
 			Path oldFilePath=Paths.get(filePath);
-			Path bkpFilePath=Paths.get(bkpFolderPath+fileName);
+			Path bkpFilePath=Paths.get(bkpFolderPath+"\\"+fileName+"_"+ConfigLoader.getInstance().getBkpSuffix()+".pdf");			
 			Files.copy(oldFilePath, bkpFilePath,
 					StandardCopyOption.REPLACE_EXISTING);
 			return true;

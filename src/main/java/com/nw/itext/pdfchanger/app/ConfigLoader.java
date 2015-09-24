@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import com.sun.swing.internal.plaf.synth.resources.synth;
+
 public class ConfigLoader {
 	private Properties prop;
 
@@ -16,7 +18,7 @@ public class ConfigLoader {
 		
 	}
 
-	public static ConfigLoader getInstance() {
+	public synchronized static ConfigLoader getInstance() {
 		if (me == null) {
 			throw new RuntimeException(
 					"Config loader InitMethod should be called first");
@@ -54,7 +56,7 @@ public class ConfigLoader {
 		}
 	}
 
-	public String getInputSrc() {
+	public synchronized String getInputSrc() {
 		if (prop == null || !prop.containsKey("InputSrc")) {
 			throw new RuntimeException(
 					"Property Not found: InputSrc , check Config.properties ");
@@ -63,20 +65,20 @@ public class ConfigLoader {
 
 	}
 
-	public boolean getVerify() {
+	public synchronized boolean getVerify() {
 		return getBooleanValue("Verify");
 
 	}
 
-	public boolean getTestOnly() {
+	public synchronized boolean getTestOnly() {
 		return getBooleanValue("TestOnly");
 	}
 
-	public boolean getVerbose() {
+	public synchronized boolean getVerbose() {
 		return getBooleanValue("Verbose");
 	}
 
-	public String getPrefix() {
+	public synchronized String getPrefix() {
 		if (prop == null || !prop.containsKey("Prefix")) {
 			throw new RuntimeException(
 					"Property Not found: Prefix , check Config.properties ");
@@ -85,7 +87,7 @@ public class ConfigLoader {
 
 	}
 
-	public int getThreadPoolSize() {
+	public synchronized int getThreadPoolSize() {
 		if (prop == null || !prop.containsKey("ThreadPoolSize")) {
 			throw new RuntimeException(
 					"Property Not found: ThreadPoolSize , check Config.properties ");
@@ -94,7 +96,7 @@ public class ConfigLoader {
 
 	}
 
-	public int getSequentialThreshold() {
+	public synchronized int getSequentialThreshold() {
 		if (prop == null || !prop.containsKey("SequentialThreshold")) {
 			throw new RuntimeException(
 					"Property Not found: SequentialThreshold , check Config.properties ");
@@ -103,7 +105,7 @@ public class ConfigLoader {
 
 	}
 
-	public String getBkpSuffix() {
+	public synchronized String getBkpSuffix() {
 		if (prop == null || !prop.containsKey("BkpSuffix")) {
 			throw new RuntimeException(
 					"Property Not found: BkpSuffix , check Config.properties ");
@@ -111,7 +113,7 @@ public class ConfigLoader {
 		return prop.get("BkpSuffix").toString();
 	}
 
-	public boolean getBooleanValue(String key) {
+	public synchronized boolean getBooleanValue(String key) {
 		if (prop == null || !prop.containsKey(key)) {
 			throw new RuntimeException("Property Not found: " + key
 					+ " , check Config.properties ");

@@ -18,25 +18,28 @@ public class PDFRollBack implements FileProcessorIF {
 
 	public boolean processFile() {
 		
-		String fileName=currentFilePath.substring(currentFilePath.lastIndexOf("/")+1);
-		String bkpFolderPath= currentFilePath.substring(0,currentFilePath.lastIndexOf("/"))+ConfigLoader.getInstance().getBkpSuffix();
+		String fileName=currentFilePath.substring(currentFilePath.lastIndexOf("\\")+1);
+		String bkpFolderPath= currentFilePath.substring(0,currentFilePath.lastIndexOf("\\")+1)+ConfigLoader.getInstance().getBkpSuffix();
 		File bkpFolder=new File(bkpFolderPath);
-		if(!bkpFolder.exists()){
-			System.err.println("Backup folder not found for file :"+ currentFilePath);
-			return false;
+		if(bkpFolder.exists()){
+			//no backup folder  for this file 
+			Path originalFilePath=Paths.get(currentFilePath);
+			Path bkpFilePath=Paths.get(bkpFolderPath+"\\"+fileName+"_"+ConfigLoader.getInstance().getBkpSuffix()+".pdf");
+			File bkpFile=new File(bkpFilePath.toString());
+			if(bkpFile.exists()){
+				System.out.println(originalFilePath);
+				try {
+					Files.copy(bkpFilePath, originalFilePath,
+							StandardCopyOption.REPLACE_EXISTING);
+					return true;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
 		}
-		Path originalFilePath=Paths.get(currentFilePath);
-		Path bkpFilePath=Paths.get(bkpFolderPath+fileName);
 		
-		System.out.println(originalFilePath);
-		try {
-			Files.copy(bkpFilePath, originalFilePath,
-					StandardCopyOption.REPLACE_EXISTING);
-			return true;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return false;
 	}
 

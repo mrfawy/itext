@@ -2,12 +2,11 @@ package com.nw.itext.pdfchanger.app;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
 
 import com.nw.itext.pdfchanger.multi.FileProcessorFactory;
 import com.nw.itext.pdfchanger.multi.FileProcessorTypeEnum;
-import com.nw.itext.pdfchanger.multi.ProcessListRecursiveAction;
+import com.nw.itext.pdfchanger.multi.ProcessListRecursiveTask;
 
 public class App {
 
@@ -76,10 +75,9 @@ public class App {
 
 		// create Thread pool
 		final ForkJoinPool pool = new ForkJoinPool(ConfigLoader.getInstance()
-				.getThreadPoolSize());
-		List<String> modifiedFilePathList = new CopyOnWriteArrayList<String>();
-		ProcessListRecursiveAction action = new ProcessListRecursiveAction(
-				filePathList, modifiedFilePathList, 0, filePathList.size(),
+				.getThreadPoolSize());		
+		ProcessListRecursiveTask action = new ProcessListRecursiveTask(
+				filePathList, 0, filePathList.size(),
 				factory);
 		pool.invoke(action);
 	}

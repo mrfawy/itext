@@ -4,12 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.RecursiveTask;
 
 import org.apache.commons.io.IOUtils;
 
@@ -38,14 +36,17 @@ public class FileLocator {
 			
 				File f;
 				try {
-					f = new File(filePath);
+					f = new File(filePath.trim());
 					if (f.exists() && f.canRead()) {
 						if (f.isDirectory()) {
 							FileLocatorTask task = new FileLocatorTask(filePath);
 							result.addAll(forkJoinPool.invoke(task));
 							
 						} else {
-							result.add(filePath);
+							if(!filePath.contains(ConfigLoader.getInstance().getBkpSuffix())){
+								result.add(filePath);
+							}
+							
 						}
 					} else {
 						System.err.println("Can't access path : " + filePath);
@@ -72,7 +73,7 @@ public class FileLocator {
 		List<String> inputFilesLines = IOUtils.readLines(input,
 				Charset.defaultCharset());
 
-		List<String> filePathList = new ArrayList<String>();
+		List<String> filePathList = new Vector<String>();
 		filePathList.addAll(loadFilePathsFromFile(inputFilesLines));
 		if (verbose) {
 			for (String filePath : filePathList) {
