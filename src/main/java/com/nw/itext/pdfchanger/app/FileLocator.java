@@ -44,7 +44,7 @@ public class FileLocator {
 							
 						} else {
 							if(!filePath.contains(ConfigLoader.getInstance().getBkpSuffix())){
-								result.add(filePath);
+								result.add(filePath.trim());
 							}
 							
 						}

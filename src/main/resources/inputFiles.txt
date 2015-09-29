@@ -1,1 +1,19 @@
-\\urbwsr01\manuals\Commerciallines\eManual\Farm\Farm-Manual\Testdont touch
+\\urbwsr01\manuals\Commerciallines\eManual\NSH-AlliedSeries\WY 
+\\urbwsr01\manuals\Commerciallines\eManual\BusinessAuto\NorthDakota
+\\urbwsr01\manuals\Commerciallines\eManual\LCM
+\\urbwsr01\manuals\Commerciallines\eManual\NSH-AlliedSeries
+\\urbwsr01\manuals\Commerciallines\eManual\BusinessAuto
+\\urbwsr01\manuals\Commerciallines\eManual\NSH-AlliedSeries
+\\urbwsr01\manuals\Commerciallines\eManual\General Liability
+\\urbwsr01\manuals\Commerciallines\eManual\Farm\Umbrella
+\\urbwsr01\manuals\Commerciallines\eManual\PRS-AlliedSeries
+\\urbwsr01\manuals\Commerciallines\eManual\BOP-Premier
+\\urbwsr01\manuals\Commerciallines\eManual\Farm\Farm-Manual
+\\urbwsr01\manuals\Commerciallines\eManual\CTR-AlliedSeries
+\\urbwsr01\manuals\Commerciallines\eManual\PRS-AlliedSeries
+\\urbwsr01\manuals\Commerciallines\eManual\Garage
+\\urbwsr01\manuals\Commerciallines\eManual\WHD-AlliedSeries
+\\urbwsr01\manuals\Commerciallines\eManual\Comm Property
+\\urbwsr01\manuals\Commerciallines\eManual\Inland Marine
+\\urbwsr01\manuals\Commerciallines\eManual\GLF-AlliedSeries
+\\urbwsr01\manuals\Commerciallines\eManual\Work Comp

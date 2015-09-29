@@ -40,7 +40,8 @@ public class PDFChanger implements FileProcessorIF {
 	private List<RuleMatcherIF> ruleMatchers;
 
 	public PDFChanger(String filePath) {		
-		this.currentFilePath = filePath;		
+		this.currentFilePath = filePath;	
+		this.prefix=ConfigLoader.getInstance().getPrefix();
 		registerRuleMachers();
 		
 

@@ -57,13 +57,23 @@ public class SimpleFileNameRuleMatcher extends AbstractRuleMatcher {
 	@Override
 	public String createURIStr(String target) {
 		String parentpath=getParentPath(filePath);
+		boolean matcherFound=false;
 		// remove server
 		for (RuleMatcherIF matcher : complementMatchers) {
 			if (matcher.isRuleMachingTargetFile(parentpath)) {
+				matcherFound=true;
 				parentpath = matcher.createURIStr(parentpath);
 			}
 		}
-		String result = parentpath+ target;
+		String result=null;
+		if(matcherFound){
+			result = parentpath+ target;	
+		}
+		else{
+			result = prefix+parentpath+ target;	
+		}
+		
+		
 		return result;
 	}
 }

@@ -24,7 +24,7 @@ public class SimpleFileNameRuleMatcherTest {
 	@Test
 	public void test() {
 		String result = matcher.createURIStr("myfile.pdf");
-		Assert.assertEquals("\\myfile.pdf", result);
+		Assert.assertEquals("PREFIX/\\myfile.pdf", result);
 	}
 
 }

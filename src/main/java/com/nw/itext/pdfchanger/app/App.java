@@ -80,6 +80,7 @@ public class App {
 				filePathList, 0, filePathList.size(),
 				factory);
 		pool.invoke(action);
+		System.out.println("DONE!");
 	}
 
 }
