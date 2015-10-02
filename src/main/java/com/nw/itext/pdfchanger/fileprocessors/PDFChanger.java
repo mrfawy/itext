@@ -123,8 +123,11 @@ public class PDFChanger implements FileProcessorIF {
 		if (subType != null && PdfName.LINK.equals(subType)) {
 			PdfDictionary action = annotation.getAsDict(PdfName.A);
 			// skip if already processed before
-			if (action != null && action.getAsDict(PdfName.F) != null
+			if (action != null
+					&& action.getAsDict(PdfName.F) != null
 					&& action.getAsDict(PdfName.F).get(PdfName.F) != null
+					&& action.getAsDict(PdfName.F).get(PdfName.F).toString()
+							.toLowerCase().contains(".pdf")
 					&& !isProcessedBefore(annotation)) {
 				return true;
 			}
@@ -228,7 +231,7 @@ public class PDFChanger implements FileProcessorIF {
 
 		try {			
 			String fileName=filePath.substring(filePath.lastIndexOf("\\")+1);
-			String bkpFolderPath= filePath.substring(0,filePath.lastIndexOf("\\")+1)+ConfigLoader.getInstance().getBkpSuffix();
+			String bkpFolderPath= filePath.substring(0,filePath.lastIndexOf("\\")+1)+ConfigLoader.getInstance().getBkpFolder();
 						
 			File bkpFolder=new File(bkpFolderPath);
 			if(!bkpFolder.exists()){

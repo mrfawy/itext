@@ -112,6 +112,13 @@ public class ConfigLoader {
 		}
 		return prop.get("BkpSuffix").toString();
 	}
+	public synchronized String getBkpFolder() {
+		if (prop == null || !prop.containsKey("BkpFolder")) {
+			throw new RuntimeException(
+					"Property Not found: BkpFolder , check Config.properties ");
+		}
+		return prop.get("BkpFolder").toString();
+	}
 
 	public synchronized boolean getBooleanValue(String key) {
 		if (prop == null || !prop.containsKey(key)) {

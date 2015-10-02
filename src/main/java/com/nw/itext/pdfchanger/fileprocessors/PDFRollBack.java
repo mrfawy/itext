@@ -19,7 +19,7 @@ public class PDFRollBack implements FileProcessorIF {
 	public boolean processFile() {
 		
 		String fileName=currentFilePath.substring(currentFilePath.lastIndexOf("\\")+1);
-		String bkpFolderPath= currentFilePath.substring(0,currentFilePath.lastIndexOf("\\")+1)+ConfigLoader.getInstance().getBkpSuffix();
+		String bkpFolderPath= currentFilePath.substring(0,currentFilePath.lastIndexOf("\\")+1)+ConfigLoader.getInstance().getBkpFolder();
 		File bkpFolder=new File(bkpFolderPath);
 		if(bkpFolder.exists()){
 			//no backup folder  for this file 
